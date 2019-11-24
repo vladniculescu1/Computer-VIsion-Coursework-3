@@ -28,9 +28,9 @@ import org.openimaj.feature.FeatureExtractor;
 
 public class TinyImageFeature implements FeatureExtractor<DoubleFV, FImage>{
 	
-	int scaleSize;
+	float scaleSize;
 	
-	public TinyImageFeature(int scaleSize) {
+	public TinyImageFeature(float scaleSize) {
 		this.scaleSize = scaleSize;
 	}
 	
