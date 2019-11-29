@@ -4,10 +4,14 @@ import org.openimaj.image.DisplayUtilities;
 import org.openimaj.image.FImage;
 import org.openimaj.image.ImageUtilities;
 import org.openimaj.image.processing.resize.ResizeProcessor;
+import org.openimaj.math.statistics.normalisation.PerExampleMeanCenter;
+import org.openimaj.math.statistics.normalisation.PerExampleMeanCenterVar;
 import org.openimaj.util.array.ArrayUtils;
+import org.openimaj.math.statistics.distribution.MultidimensionalHistogram;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.openimaj.feature.DoubleFV;
 import org.openimaj.feature.FeatureExtractor;
@@ -26,7 +30,7 @@ import org.openimaj.feature.FeatureExtractor;
  * http://openimaj.org/apidocs/org/openimaj/util/array/ArrayUtils.html
  */
 
-public class TinyImageFeature implements FeatureExtractor<DoubleFV, FImage>{
+public class TinyImageFeature {
 	
 	float scaleSize;
 	
@@ -47,14 +51,17 @@ public class TinyImageFeature implements FeatureExtractor<DoubleFV, FImage>{
 	 * 
 	 * @return the image vector into a 1D array
 	 */
-	@Override
-	public DoubleFV extractFeature(FImage object) {
+	public double[] extractFeature(FImage object) {
 		// TODO Auto-generated method stub
 		
 		int size = Math.min(object.width, object.height);
 		FImage centre = object.extractCenter(size, size);
 		FImage scale = centre.process(new ResizeProcessor(scaleSize, scaleSize));
-		return new DoubleFV(ArrayUtils.reshape(ArrayUtils.convertToDouble(scale.pixels)));
+		double[] dataD = ArrayUtils.reshape(ArrayUtils.convertToDouble(scale.pixels));
+		System.out.println(Arrays.toString(dataD));
+		//DoubleFV data = new DoubleFV(ArrayUtils.reshape(ArrayUtils.convertToDouble(scale.pixels)));
+		PerExampleMeanCenterVar pemc = new PerExampleMeanCenterVar(0);
+		return pemc.normalise(dataD);
 	}
 	/**
 	 * Same method from above but not reshaped into 1D array
@@ -71,8 +78,8 @@ public class TinyImageFeature implements FeatureExtractor<DoubleFV, FImage>{
 	public static void main(String args[]) throws IOException {
 		TinyImageFeature tif = new TinyImageFeature(16);
 		FImage image = ImageUtilities.readF(new File("testing/1000.jpg"));
-		DisplayUtilities.display(tif.extractFeatureImage(image));
-		System.out.println(tif.extractFeature(image));
+		//DisplayUtilities.display(image);
+		System.out.println(Arrays.toString(tif.extractFeature(image)));
 		
 	}
 
