@@ -24,15 +24,15 @@ public class Data {
 	File TESTING_DATA;
 	File TRAINING_DATA;
 	
-	private GroupedDataset<String, VFSListDataset<FImage>, FImage> trainingDataset     = null;
-	private VFSListDataset<FImage>                                 testDataset         = null;
+	private GroupedDataset<String, ListDataset<FImage>, FImage> trainingDataset     = null;
+	private VFSListDataset<FImage>                              testDataset         = null;
 	
 	public Data(String training, String testing) {
 		TRAINING_DATA = new File(training);
 		TESTING_DATA  = new File(testing);
 	}
 	
-	public GroupedDataset<String, VFSListDataset<FImage>, FImage> getTrainingDataset() {
+	public GroupedDataset<String, ListDataset<FImage>, FImage> getTrainingDataset() {
 		return trainingDataset;
 	}
 
@@ -76,7 +76,7 @@ public class Data {
 		}
 		
 		final GroupedDataset<String, VFSListDataset<FImage>, FImage> loadTrainData = new VFSGroupDataset<FImage>(TRAINING_DATA.getPath(), ImageUtilities.FIMAGE_READER);
-		trainingDataset = loadTrainData;
+		trainingDataset = splitTrainingAndValidationData(loadTrainData);
 		testDataset = new VFSListDataset<FImage>(TESTING_DATA.getPath(), ImageUtilities.FIMAGE_READER);
 	}
 	
