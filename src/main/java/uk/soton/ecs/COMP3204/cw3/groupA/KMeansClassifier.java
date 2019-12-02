@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class KMeansClassifier {
     private static final int CLUSTERSIZE = 500;
@@ -56,8 +55,9 @@ public class KMeansClassifier {
      */
     public void train(GroupedDataset<String, VFSListDataset<FImage>, FImage> dataset){
         HardAssigner<float[], float[], IntFloatPair> assigner = trainQuantiser(dataset, imgFeature);
+        System.out.println(("Training assigner"));
         linearAnnotator = new LiblinearAnnotator(
-                new LinearExtractor(assigner, imgFeature),
+                new LibLinearExtractor(assigner, imgFeature),
                 LiblinearAnnotator.Mode.MULTICLASS,
                 SolverType.L2R_L2LOSS_SVC,
                 1.0,
@@ -107,9 +107,12 @@ public class KMeansClassifier {
             GroupedDataset<String, ? extends ListDataset<FImage>, FImage> dataSet,
             PatchImageFeature patchImg)
     {
+        int a=1;
         List<float[]> allPatches = new ArrayList<>();
 
         for(FImage img : dataSet){
+            a=a+1;
+            System.out.println(a + " / " + dataSet.numInstances());
             List<LocalFeature<SpatialLocation, FloatFV>> patchesFound = patchImg.getPatches(img);
             List<float[]> featuresToVector = patchesFound.stream()
                     .map(patch -> patch.getFeatureVector().getVector())
@@ -124,6 +127,7 @@ public class KMeansClassifier {
 
         FloatKMeans km = FloatKMeans.createKDTreeEnsemble(CLUSTERSIZE);
         DataSource<float[]> dataSource = new FloatArrayBackedDataSource(allPatches.toArray(new float[][]{}));
+        System.out.println("Clustering");
         FloatCentroidsResult res = km.cluster(dataSource);
         return res.defaultHardAssigner();
     }

@@ -14,11 +14,11 @@ import org.openimaj.util.pair.IntFloatPair;
 
 import java.util.List;
 
-final class LinearExtractor implements FeatureExtractor<SparseIntFV, FImage> {
+final class LibLinearExtractor implements FeatureExtractor<SparseIntFV, FImage> {
     private PatchImageFeature patchImg;
     private HardAssigner<float[], float[], IntFloatPair> assigner;
 
-    public LinearExtractor(HardAssigner<float[],float[], IntFloatPair> assigner, PatchImageFeature patchImg){
+    public LibLinearExtractor(HardAssigner<float[],float[], IntFloatPair> assigner, PatchImageFeature patchImg){
         this.patchImg = patchImg ;
         this.assigner = assigner ;
     }
@@ -30,10 +30,5 @@ final class LinearExtractor implements FeatureExtractor<SparseIntFV, FImage> {
         List<LocalFeature<SpatialLocation, FloatFV>> features = patchImg.getPatches(img);
 
         return bovw.aggregate(features);
-//        BlockSpatialAggregator<float[], SparseIntFV> spatial = new BlockSpatialAggregator<>(
-//                bovw, 2, 2);
-//
-//        return spatial.aggregate(features,img.getBounds()).normaliseFV();
-
     }
 }
