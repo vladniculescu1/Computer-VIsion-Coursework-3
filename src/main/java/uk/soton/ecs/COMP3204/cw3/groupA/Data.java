@@ -15,6 +15,9 @@ import org.openimaj.image.FImage;
 import org.openimaj.image.ImageUtilities;
 import org.openimaj.image.processing.transform.AffineSimulation;
 
+/**
+ * @author team 14
+ */
 public class Data {
 	
 	String CURRENT_WORKING_DIRECTORY = System.getProperty("user.dir");
@@ -24,45 +27,45 @@ public class Data {
 	File TESTING_DATA;
 	File TRAINING_DATA;
 	
-	private GroupedDataset<String, ListDataset<FImage>, FImage> trainingDataset     = null;
-	private VFSListDataset<FImage>                              testDataset         = null;
-	
+	private GroupedDataset<String, VFSListDataset<FImage>, FImage> trainingDataset     = null;
+	private VFSListDataset<FImage>                                 testDataset         = null;
+
 	public Data(String training, String testing) {
 		TRAINING_DATA = new File(training);
 		TESTING_DATA  = new File(testing);
 	}
-	
-	public GroupedDataset<String, ListDataset<FImage>, FImage> getTrainingDataset() {
+
+	public GroupedDataset<String, VFSListDataset<FImage>, FImage> getTrainingDataset() {
 		return trainingDataset;
 	}
 
 	public VFSListDataset<FImage> getTestingDataset(){
 		return testDataset;
 	}
-	
+
 	public File getRun1File() {
 		return RUN1_RESULT;
 	}
-	
+
 	public File getRun2File() {
 		return RUN2_RESULT;
 	}
-	
+
 	public File getRun3File() {
 		return RUN3_RESULT;
 	}
-	
+
 	public File getTestingFile() {
 		return TESTING_DATA;
 	}
-	
+
 	public File getTrainingFile() {
 		return TRAINING_DATA;
 	}
-	
+
 	/**
 	 * Get datasets from directories
-	 * 
+	 *
 	 * @throws IOException
 	 * @throws FileSystemException
 	 */
@@ -70,13 +73,13 @@ public class Data {
 		if(!TESTING_DATA.exists()) {
 			throw new IOException("Testing file does not exist");
 		}
-		
+
 		if(!TRAINING_DATA.exists()) {
 			throw new IOException("Training file does not exit");
 		}
-		
+
 		final GroupedDataset<String, VFSListDataset<FImage>, FImage> loadTrainData = new VFSGroupDataset<FImage>(TRAINING_DATA.getPath(), ImageUtilities.FIMAGE_READER);
-		trainingDataset = splitTrainingAndValidationData(loadTrainData);
+		trainingDataset = loadTrainData;
 		testDataset = new VFSListDataset<FImage>(TESTING_DATA.getPath(), ImageUtilities.FIMAGE_READER);
 	}
 	
