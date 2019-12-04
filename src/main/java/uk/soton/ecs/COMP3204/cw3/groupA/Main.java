@@ -14,8 +14,8 @@ import java.nio.file.FileSystemException;
  *
  */
 public class Main {
-	final static String CURRENT_WORKING_DIRECTORY 		   = System.getProperty("user.dir");
-	final static String TRAINING_PATH			   = CURRENT_WORKING_DIRECTORY+"/training";
+    final static String CURRENT_WORKING_DIRECTORY 		   = System.getProperty("user.dir");
+    final static String TRAINING_PATH			           = CURRENT_WORKING_DIRECTORY+"/training";
     final static String TESTING_PATH  		 	   	   = CURRENT_WORKING_DIRECTORY+"/testing";
     final static Scanner scan 			   		   = new Scanner(System.in);
     private static Data data;
