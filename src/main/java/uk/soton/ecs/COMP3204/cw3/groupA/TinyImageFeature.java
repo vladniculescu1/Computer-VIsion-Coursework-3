@@ -1,17 +1,17 @@
 package uk.soton.ecs.COMP3204.cw3.groupA;
 
-import org.openimaj.image.DisplayUtilities;
 import org.openimaj.image.FImage;
 import org.openimaj.image.ImageUtilities;
+import org.openimaj.util.array.ArrayUtils;
+import org.openimaj.image.DisplayUtilities;
 import org.openimaj.image.processing.resize.ResizeProcessor;
 import org.openimaj.math.statistics.normalisation.PerExampleMeanCenter;
 import org.openimaj.math.statistics.normalisation.PerExampleMeanCenterVar;
-import org.openimaj.util.array.ArrayUtils;
 import org.openimaj.math.statistics.distribution.MultidimensionalHistogram;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
+import java.io.IOException;
 
 import org.openimaj.feature.DoubleFV;
 import org.openimaj.feature.FeatureExtractor;
@@ -30,7 +30,7 @@ import org.openimaj.feature.FeatureExtractor;
  * http://openimaj.org/apidocs/org/openimaj/util/array/ArrayUtils.html
  */
 
-public class TinyImageFeature {
+public class TinyImageFeature implements FeatureExtractor<DoubleFV, FImage>{
 
 	float scaleSize;
 
@@ -51,7 +51,7 @@ public class TinyImageFeature {
 	 *
 	 * @return the image vector into a 1D array
 	 */
-	public double[] extractFeature(FImage object) {
+	public DoubleFV extractFeature(FImage object) {
 		// TODO Auto-generated method stub
 
 		int size = Math.min(object.width, object.height);
@@ -61,7 +61,7 @@ public class TinyImageFeature {
 		System.out.println(Arrays.toString(dataD));
 		//DoubleFV data = new DoubleFV(ArrayUtils.reshape(ArrayUtils.convertToDouble(scale.pixels)));
 		PerExampleMeanCenterVar pemc = new PerExampleMeanCenterVar(0);
-		return pemc.normalise(dataD);
+		return new DoubleFV(pemc.normalise(dataD));
 	}
 	/**
 	 * Same method from above but not reshaped into 1D array
@@ -79,7 +79,7 @@ public class TinyImageFeature {
 		TinyImageFeature tif = new TinyImageFeature(16);
 		FImage image = ImageUtilities.readF(new File("testing/1000.jpg"));
 		//DisplayUtilities.display(image);
-		System.out.println(Arrays.toString(tif.extractFeature(image)));
+		//System.out.println(Arrays.toString(tif.extractFeature(image)));
 		
 	}
 

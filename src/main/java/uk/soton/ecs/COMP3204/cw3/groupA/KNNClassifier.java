@@ -1,18 +1,21 @@
 package uk.soton.ecs.COMP3204.cw3.groupA;
 
+import org.openimaj.image.FImage;
+import org.openimaj.util.pair.IntDoublePair;
+import org.openimaj.feature.DoubleFVComparison;
 import org.openimaj.data.dataset.GroupedDataset;
 import org.openimaj.data.dataset.VFSListDataset;
-import org.openimaj.experiment.evaluation.classification.BasicClassificationResult;
-import org.openimaj.image.FImage;
 import org.openimaj.knn.DoubleNearestNeighboursExact;
-import org.openimaj.util.pair.IntDoublePair;
+import org.openimaj.ml.annotation.basic.KNNAnnotator;
+import org.openimaj.experiment.evaluation.classification.BasicClassificationResult;
 
-import java.io.BufferedWriter;
 import java.io.File;
+import java.util.List;
 import java.io.FileWriter;
+import java.util.Optional;
 import java.io.IOException;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.io.BufferedWriter;
 
 /**
  *
@@ -24,37 +27,47 @@ import java.util.*;
 public class KNNClassifier {
 	final float scaleSize = 16.0F;
 	final int   K_Value	  = 15;
-
-
-	String CURRENT_WORKING_DIRECTORY = System.getProperty("user.dir");
-	final String TRAINING_PATH		 = CURRENT_WORKING_DIRECTORY+"/training";
-	final String TESTING_PATH  		 = CURRENT_WORKING_DIRECTORY+"/testing";
-
+	/*
+		String CURRENT_WORKING_DIRECTORY = System.getProperty("user.dir");
+		final String TRAINING_PATH		 = CURRENT_WORKING_DIRECTORY+"/training";
+		final String TESTING_PATH  		 = CURRENT_WORKING_DIRECTORY+"/testing";
+	*/
 	final GroupedDataset<String, VFSListDataset<FImage>, FImage>trainingDataset;
 	final VFSListDataset<FImage> testDataset;
-
+	final KNNAnnotator  knnAnn;
 
 	private DoubleNearestNeighboursExact knn;
 
 	//The classes of the training feature vectors (array indices correspond to featureVector indices)
-	private  List<String> classes;
 	private  List<double[]> features;
 	private  List<String> finalR;
 	private  Data dataF;
 
 
-	public KNNClassifier() throws IOException {
-		dataF = new Data(TRAINING_PATH,TESTING_PATH);
+	public KNNClassifier(Data data) throws IOException {
+		dataF 						  = data;
+		TinyImageFeature tif 		  = new TinyImageFeature(scaleSize);
+		DoubleFVComparison comparator = DoubleFVComparison.EUCLIDEAN;
+		
 		dataF.initData();
 		trainingDataset = dataF.getTrainingDataset();
 		testDataset    	= dataF.getTestingDataset();
+		knnAnn			= KNNAnnotator.create(tif, comparator, K_Value);
+	}
+	
+	public void train(GroupedDataset<String, VFSListDataset<FImage>, FImage> dataset) {
+		knnAnn.train(dataset);
+	}
+	
+	public Optional predict(FImage img){
+		return knnAnn.classify(img).getPredictedClasses().stream().findFirst();
 	}
 
 	/**
 	 *
 	 * @param dataset
 	 */
-	public void train(GroupedDataset<String, VFSListDataset<FImage>, FImage> dataset){
+	/*public void train(GroupedDataset<String, VFSListDataset<FImage>, FImage> dataset){
 		features = new ArrayList<>();
 		classes  = new ArrayList<>();
 
@@ -70,12 +83,12 @@ public class KNNClassifier {
 
 		knn = new DoubleNearestNeighboursExact(features.toArray(new double[][]{}));
 	}
-
+	 */
 	/**
 	 *
 	 * @return
 	 */
-	public String predict(FImage image, String name) throws IOException {
+	/*public String predict(FImage image, String name) throws IOException {
 		TinyImageFeature tif = new TinyImageFeature(scaleSize);
 		double[] data = tif.extractFeature(image);
 
@@ -113,31 +126,34 @@ public class KNNClassifier {
 		resultB.put(result, confidence);
 
 		return name+" "+result+" "+confidence;
-	}
+	}*/
 
-	public void run() throws IOException {
+	public List<String> run() throws IOException {
 		System.out.println("-------  Start RUN1  -------");
-		System.out.println("==> Loading the Datasets ...");
+		System.out.println("[*] Loading the Datasets ...");
 
 		int noTraining = trainingDataset.numInstances();
 		int noTesting  = testDataset.numInstances();
 
 
-		System.out.println("-> Training Set: "+noTraining);
-		System.out.println("-> Testing Set: " +noTesting);
+		System.out.println("[*] Training Set: "+noTraining);
+		System.out.println("[*] Testing Set: " +noTesting);
 
-		System.out.println("==> Training Dataset ...");
+		System.out.println("[*] Training Dataset ...");
 
 		train(trainingDataset);
 		finalR = new ArrayList<>();
 
-
-		System.out.println("==> Testing Dataset ...");
+		System.out.println("[*] Testing Dataset ...");
 		for(int i=0; i<testDataset.numInstances();i++) {
-			finalR.add(predict(testDataset.get(i), testDataset.getID(i)));
+			String n = testDataset.getID(i);
+			String f = (String) predict(testDataset.get(i)).get();
+			//finalR.add(predict1(testDataset.get(i), testDataset.getID(i)));
+			finalR.add(n+" "+f);
+			//System.out.println(n+" "+f);
 		}
 
-		File file = dataF.RUN1_RESULT;
+		/*File file = dataF.RUN1_RESULT;
 		FileWriter fr = new FileWriter(file, true);
 		BufferedWriter br = new BufferedWriter(fr);
 
@@ -161,12 +177,13 @@ public class KNNClassifier {
 		br.close();
 		fr.close();
 
-		System.out.println("==> DONE <== CHECK: "+ dataF.getRun1File().getPath());
+		System.out.println("==> DONE <== CHECK: "+ dataF.getRun1File().getPath());*/
+		return finalR;
 	}
 
 	public static void main(String args[]) throws IOException {
-		KNNClassifier test = new KNNClassifier();
-		test.run();
+		//KNNClassifier test = new KNNClassifier();
+		//test.run();
 	}
 
 }

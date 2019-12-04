@@ -4,16 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystemException;
 
-import org.openimaj.data.dataset.GroupedDataset;
-import org.openimaj.data.dataset.ListBackedDataset;
-import org.openimaj.data.dataset.ListDataset;
-import org.openimaj.data.dataset.VFSGroupDataset;
-import org.openimaj.data.dataset.VFSListDataset;
-import org.openimaj.experiment.dataset.sampling.GroupSampler;
-import org.openimaj.experiment.dataset.split.GroupedRandomSplitter;
 import org.openimaj.image.FImage;
 import org.openimaj.image.ImageUtilities;
+import org.openimaj.data.dataset.ListDataset;
+import org.openimaj.data.dataset.GroupedDataset;
+import org.openimaj.data.dataset.VFSListDataset;
+import org.openimaj.data.dataset.VFSGroupDataset;
+import org.openimaj.data.dataset.ListBackedDataset;
+import org.openimaj.experiment.dataset.sampling.GroupSampler;
 import org.openimaj.image.processing.transform.AffineSimulation;
+import org.openimaj.experiment.dataset.split.GroupedRandomSplitter;
 
 /**
  * @author team 14
@@ -30,9 +30,11 @@ public class Data {
 	private GroupedDataset<String, VFSListDataset<FImage>, FImage> trainingDataset     = null;
 	private VFSListDataset<FImage>                                 testDataset         = null;
 
-	public Data(String training, String testing) {
+	public Data(String training, String testing) throws FileSystemException, IOException {
 		TRAINING_DATA = new File(training);
 		TESTING_DATA  = new File(testing);
+		
+		initData();
 	}
 
 	public GroupedDataset<String, VFSListDataset<FImage>, FImage> getTrainingDataset() {
