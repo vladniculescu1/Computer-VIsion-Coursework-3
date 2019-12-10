@@ -112,7 +112,7 @@ public class KMeansClassifier {
             GroupedDataset<String, ? extends ListDataset<FImage>, FImage> dataSet,
             PatchImageFeature patchImg)
     {
-        int a=1;
+        int a=0;
         List<float[]> allPatches = new ArrayList<>();
 
         for(FImage img : dataSet){
