@@ -13,10 +13,19 @@ import java.util.ArrayList;
 import java.util.stream.Stream;
 import java.util.stream.LongStream;
 
+/**
+ * @author team 14
+ */
 public class PatchImageFeature {
     private final int patchSize = 8;
     private final int skipSize = 4;
 
+    /**
+     * Extract 8x8 patches from an image
+     * Accumulate the results to a list of local features
+     * @param image the image to be analysed
+     * @return
+     */
     List<LocalFeature<SpatialLocation, FloatFV>> getPatches(FImage image)
     {
         List<LocalFeature<SpatialLocation, FloatFV>> patches = new ArrayList<LocalFeature<SpatialLocation, FloatFV>>();

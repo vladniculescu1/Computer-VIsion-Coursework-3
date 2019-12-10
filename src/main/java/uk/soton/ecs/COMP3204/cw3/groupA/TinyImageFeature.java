@@ -34,6 +34,10 @@ public class TinyImageFeature implements FeatureExtractor<DoubleFV, FImage>{
 
 	float scaleSize;
 
+	/**
+	 * Constructor
+	 * @param scaleSize the size of the final image
+	 */
 	public TinyImageFeature(float scaleSize) {
 		this.scaleSize = scaleSize;
 	}
@@ -52,35 +56,15 @@ public class TinyImageFeature implements FeatureExtractor<DoubleFV, FImage>{
 	 * @return the image vector into a 1D array
 	 */
 	public DoubleFV extractFeature(FImage object) {
-		// TODO Auto-generated method stub
 
 		int size = Math.min(object.width, object.height);
 		FImage centre = object.extractCenter(size, size);
 		FImage scale = centre.process(new ResizeProcessor(scaleSize, scaleSize));
 		double[] dataD = ArrayUtils.reshape(ArrayUtils.convertToDouble(scale.pixels));
 		System.out.println(Arrays.toString(dataD));
-		//DoubleFV data = new DoubleFV(ArrayUtils.reshape(ArrayUtils.convertToDouble(scale.pixels)));
+
 		PerExampleMeanCenterVar pemc = new PerExampleMeanCenterVar(0);
 		return new DoubleFV(pemc.normalise(dataD));
-	}
-	/**
-	 * Same method from above but not reshaped into 1D array
-	 *
-	 * @param object
-	 * @return the cropped and scaled image
-	 */
-	public FImage extractFeatureImage(FImage object) {
-		int size = Math.min(object.width, object.height);
-		FImage centre = object.extractCenter(size, size);
-		return centre.process(new ResizeProcessor(scaleSize, scaleSize));
-	}
-
-	public static void main(String args[]) throws IOException {
-		TinyImageFeature tif = new TinyImageFeature(16);
-		FImage image = ImageUtilities.readF(new File("testing/1000.jpg"));
-		//DisplayUtilities.display(image);
-		//System.out.println(Arrays.toString(tif.extractFeature(image)));
-		
 	}
 
 }

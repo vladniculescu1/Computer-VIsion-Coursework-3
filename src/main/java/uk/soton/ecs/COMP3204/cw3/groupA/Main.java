@@ -9,9 +9,7 @@ import java.io.BufferedWriter;
 import java.nio.file.FileSystemException;
 
 /**
- * OpenIMAJ!
  * @author team 14
- *
  */
 public class Main {
     final static String CURRENT_WORKING_DIRECTORY 		   = System.getProperty("user.dir");
@@ -19,8 +17,12 @@ public class Main {
     final static String TESTING_PATH  		 	   	   = CURRENT_WORKING_DIRECTORY+"/testing";
     final static Scanner scan 			   		   = new Scanner(System.in);
     private static Data data;
-    
-	
+
+	/**
+	 * The main routine to start 'Run1', 'Run2', 'Run3'
+	 * @param args
+	 * @throws IOException
+	 */
     public static void main( String[] args ) throws IOException {
     	data = new Data(TRAINING_PATH, TESTING_PATH);
     	
@@ -52,24 +54,49 @@ public class Main {
     		default: System.err.println("[ERROR]"); System.exit(0);
     	}	
     }
-    
-    
-    public static List<String> run1(Data data) throws IOException {
+
+
+	/**
+	 * Run the classifier on the given dataset
+	 * @param data the dataset
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<String> run1(Data data) throws IOException {
     	KNNClassifier knn = new KNNClassifier(data);
     	return knn.run();
     }
-    
-    public static List<String> run2(Data data) throws IOException {
+
+	/**
+	 * Run the classifier on the given dataset
+	 * @param data the dataset
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<String> run2(Data data) throws IOException {
     	KMeansClassifier kmc = new KMeansClassifier(data);
     	return kmc.run();
     }
-    
-    public static List<String> run3(Data data) throws FileSystemException, IOException{
+
+	/**
+	 * Run the classifier on the given dataset
+	 * @param data the dataset
+	 * @return
+	 * @throws FileSystemException
+	 * @throws IOException
+	 */
+	public static List<String> run3(Data data) throws FileSystemException, IOException{
     	BestClassifier bc = new BestClassifier(data);
 		return bc.run();
     }
-    
-    public static void writeFile(File resultFile, List<String> finalR) throws IOException {
+
+	/**
+	 * Write a list of strings to a file
+	 * @param resultFile the outputted file
+	 * @param finalR the array of strings
+	 * @throws IOException
+	 */
+	public static void writeFile(File resultFile, List<String> finalR) throws IOException {
     	File file = resultFile;
 		FileWriter fr = new FileWriter(file, false);
 		BufferedWriter br = new BufferedWriter(fr);
@@ -84,7 +111,6 @@ public class Main {
 				}
 			}
 
-			//System.out.println(out);
 			if(out!="") {
 				br.write(out);
 				br.newLine();

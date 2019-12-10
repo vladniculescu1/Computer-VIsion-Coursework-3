@@ -38,23 +38,30 @@ import org.openimaj.experiment.evaluation.classification.ClassificationResult;
 
 import de.bwaldvogel.liblinear.SolverType;
 
+/**
+ * @author team 14
+ */
 public class BestClassifier {
 	private LiblinearAnnotator<FImage, String> annotation;
 	private List<String> finalR;
 	private Data data;
-	
+
+	/**
+	 * Constructor
+	 * @param data training data, testing data, destination file
+	 * @throws FileSystemException
+	 * @throws IOException
+	 */
 	public BestClassifier(Data data) throws FileSystemException, IOException {
 		this.data = data;
 	}
-	
-	public static void main(String[] args) throws FileSystemException, IOException {
-		//BestClassifier bc = new BestClassifier();
-		//bc.run();
-	}
+
 
 	/**
-	 * 
-	 * @return
+	 * Train the classifier with training data
+	 * Classify each image from the testing data
+	 *
+	 * @return the list of predictions
 	 */
 	public List<String> run(){
 		GroupedDataset<String, ListDataset<FImage>, FImage> dataSet = GroupSampler.sample(data.getTrainingDataset(), data.getTrainingDataset().size(), false);
@@ -65,32 +72,24 @@ public class BestClassifier {
 		
 		System.out.println("[*] Start Training...");
 		train(dataSet);
-		//System.out.println("[*] Training Done");
 		
 		for(int i=0; i<sizeTest; i++) {
 			FImage image = testDataset.get(i);
 			String label = testDataset.getID(i);
 			
 			ClassificationResult<String> predicted = classify(image);
-			//String[] classes 					   = predicted.getPredictedClasses().toArray(new String[]{});
 			String predict 		       			   = (String)predicted.getPredictedClasses().stream().findFirst().get();
-			
-			//System.out.println(label);
-			System.out.println("> "+i+" "+predict);
-			
-			//for(String pred: classes) {
+
+//			System.out.println("> "+i+" "+predict);
 			finalR.add(label+" "+predict);
-				//System.out.print(pred+" ");
-			//}
-			//System.out.println();
 		}
 		
 		return finalR;
 	}
 	
 	/**
-	 * 
-	 * @param sample
+	 * Perfoms K-Means clustering on SIFT features sample
+	 * @param sample dataset of images
 	 * @param sift
 	 * @return
 	 */
@@ -106,7 +105,10 @@ public class BestClassifier {
 		}
 		
 		System.out.println("\n"+"[*] Training Done - SIFT");
-		
+
+		/**
+		 * Tried 600 rather than 500
+		 */
 		ByteKMeans bkm = ByteKMeans.createKDTreeEnsemble(600);
 		DataSource<byte[]> datasource = new LocalFeatureListDataSource<ByteDSIFTKeypoint, byte[]>(allkeys);
 		
@@ -119,13 +121,18 @@ public class BestClassifier {
 	
 	/**
 	 * 
-	 *
+	 * Implementation for training the classifier
 	 *
 	 */
 	class PHOWExtractor implements FeatureExtractor<DoubleFV, FImage>{
 		final PyramidDenseSIFT<FImage> sift;
 		final HardAssigner<byte[], float[], IntFloatPair> assigner;
-		
+
+		/**
+		 * Constructor
+		 * @param sift
+		 * @param assigner
+		 */
 		public PHOWExtractor(PyramidDenseSIFT<FImage> sift, HardAssigner<byte[], float[], IntFloatPair> assigner) {
 			this.sift 	  = sift;
 			this.assigner = assigner;
@@ -139,10 +146,12 @@ public class BestClassifier {
 		 * @spatial performs spatial pooling of local 
 		 * features by grouping the local features into 
 		 * non-overlapping, fixed-size spatial blocks
+		 *
+		 * @gist creates a low dimensional representation of
+		 * the scene by encoding a set of dimensions
 		 */
 		@Override
 		public DoubleFV extractFeature(FImage object) {
-			// TODO Auto-generated method stub
 			BagOfVisualWords<byte[]> bovw 						= new BagOfVisualWords<byte[]>(assigner);
 			BlockSpatialAggregator<byte[], SparseIntFV> spatial = new BlockSpatialAggregator<byte[], SparseIntFV>(bovw, 4, 4);
 			Gist<FImage> gist 									= new Gist<FImage>(256, 256);
@@ -158,7 +167,13 @@ public class BestClassifier {
 		}
 		
 	}
-	
+
+
+	/**
+	 *  Extract a set of features
+	 *  Annotate each feature
+	 * @param trainingDataset the dataset used to extract a set of features
+	 */
 	public void train(GroupedDataset<String, ListDataset<FImage>, FImage> trainingDataset) {
 		DenseSIFT dsift 			    			 = new DenseSIFT(5, 5);
 		PyramidDenseSIFT<FImage> pdSift 			 = new PyramidDenseSIFT<FImage>(dsift, 6f, 2,5);
@@ -174,7 +189,13 @@ public class BestClassifier {
 		annotation.train(trainingDataset);
 		System.out.println("[*] Training Done");
 	}
-	
+
+
+	/**
+	 * Classify an image
+	 * @param image image to be classified
+	 * @return the classification result
+	 */
 	public ClassificationResult<String> classify(FImage image) {
 		return annotation.classify(image);
 	}

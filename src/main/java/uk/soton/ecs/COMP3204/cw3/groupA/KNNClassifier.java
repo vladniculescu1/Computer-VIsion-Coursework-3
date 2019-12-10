@@ -18,20 +18,12 @@ import java.util.ArrayList;
 import java.io.BufferedWriter;
 
 /**
- *
  * @author team 14
- *
- * K = sqrt(number of samples in datasets)/2
- * Odd number
  */
 public class KNNClassifier {
 	final float scaleSize = 16.0F;
 	final int   K_Value	  = 15;
-	/*
-		String CURRENT_WORKING_DIRECTORY = System.getProperty("user.dir");
-		final String TRAINING_PATH		 = CURRENT_WORKING_DIRECTORY+"/training";
-		final String TESTING_PATH  		 = CURRENT_WORKING_DIRECTORY+"/testing";
-	*/
+
 	final GroupedDataset<String, VFSListDataset<FImage>, FImage>trainingDataset;
 	final VFSListDataset<FImage> testDataset;
 	final KNNAnnotator  knnAnn;
@@ -44,6 +36,11 @@ public class KNNClassifier {
 	private  Data dataF;
 
 
+	/**
+	 * Constructor
+	 * @param data training data, testing data, destination file
+	 * @throws IOException
+	 */
 	public KNNClassifier(Data data) throws IOException {
 		dataF 						  = data;
 		TinyImageFeature tif 		  = new TinyImageFeature(scaleSize);
@@ -54,80 +51,33 @@ public class KNNClassifier {
 		testDataset    	= dataF.getTestingDataset();
 		knnAnn			= KNNAnnotator.create(tif, comparator, K_Value);
 	}
-	
+
+	/**
+	 *  Extract a set of features
+	 *  Annotate each feature
+	 * @param dataset the dataset used to extract a set of features
+	 */
 	public void train(GroupedDataset<String, VFSListDataset<FImage>, FImage> dataset) {
 		knnAnn.train(dataset);
 	}
-	
+
+
+	/**
+	 * Classify an image
+	 * @param img image to be classified
+	 * @return the classification result
+	 */
 	public Optional predict(FImage img){
 		return knnAnn.classify(img).getPredictedClasses().stream().findFirst();
 	}
 
+
 	/**
+	 * Train the classifier with training data
+	 * Classify each image from the testing data
 	 *
-	 * @param dataset
+	 * @return the list of predictions
 	 */
-	/*public void train(GroupedDataset<String, VFSListDataset<FImage>, FImage> dataset){
-		features = new ArrayList<>();
-		classes  = new ArrayList<>();
-
-		TinyImageFeature tif = new TinyImageFeature(scaleSize);
-
-		for(String label:dataset.getGroups()){
-			for(FImage img: dataset.get(label)){
-				double[] fv = tif.extractFeature(img);
-				features.add(fv);
-				classes.add(label);
-			}
-		}
-
-		knn = new DoubleNearestNeighboursExact(features.toArray(new double[][]{}));
-	}
-	 */
-	/**
-	 *
-	 * @return
-	 */
-	/*public String predict(FImage image, String name) throws IOException {
-		TinyImageFeature tif = new TinyImageFeature(scaleSize);
-		double[] data = tif.extractFeature(image);
-
-		//Search for neighbours using KNN
-		List<IntDoublePair> neighbours = knn.searchKNN(data, K_Value);
-
-		Map<String, Integer> count = new HashMap<>();
-
-		for(IntDoublePair neighbour: neighbours){
-			String getClass = classes.get(neighbour.first);
-			int cnt =  1;
-
-			if(count.containsKey(getClass)){
-				cnt += count.get(getClass);
-			}
-
-			count.put(getClass, cnt);
-		}
-
-		List<Map.Entry<String, Integer>> guess = new ArrayList<>(count.entrySet());
-
-		//Sort the list
-		Collections.sort(guess, (o1, o2) -> o2.getValue().compareTo(o1.getValue()));
-
-
-		String result = guess.get(0).getKey();
-
-		//System.out.println(result);
-		double confidence = guess.get(0).getValue().doubleValue()/ (double) K_Value;
-		//System.out.println(confidence);
-
-
-
-		BasicClassificationResult<String> resultB = new BasicClassificationResult<>();
-		resultB.put(result, confidence);
-
-		return name+" "+result+" "+confidence;
-	}*/
-
 	public List<String> run() throws IOException {
 		System.out.println("-------  Start RUN1  -------");
 		System.out.println("[*] Loading the Datasets ...");
@@ -148,42 +98,9 @@ public class KNNClassifier {
 		for(int i=0; i<testDataset.numInstances();i++) {
 			String n = testDataset.getID(i);
 			String f = (String) predict(testDataset.get(i)).get();
-			//finalR.add(predict1(testDataset.get(i), testDataset.getID(i)));
 			finalR.add(n+" "+f);
-			//System.out.println(n+" "+f);
 		}
-
-		/*File file = dataF.RUN1_RESULT;
-		FileWriter fr = new FileWriter(file, true);
-		BufferedWriter br = new BufferedWriter(fr);
-
-		String out;
-		for(int j=0; j<finalR.size();j++){
-			out = "";
-			for(int p=0; p<finalR.size();p++){
-				if(finalR.get(p).matches(j+".jpg(.*)")){
-					out = finalR.get(p);
-					break;
-				}
-			}
-
-			//System.out.println(out);
-			if(out!="") {
-				br.write(out);
-				br.newLine();
-			}
-		}
-
-		br.close();
-		fr.close();
-
-		System.out.println("==> DONE <== CHECK: "+ dataF.getRun1File().getPath());*/
 		return finalR;
-	}
-
-	public static void main(String args[]) throws IOException {
-		//KNNClassifier test = new KNNClassifier();
-		//test.run();
 	}
 
 }

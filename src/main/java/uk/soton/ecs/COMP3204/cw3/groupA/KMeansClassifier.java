@@ -25,6 +25,9 @@ import java.util.ArrayList;
 import java.io.BufferedWriter;
 import java.util.stream.Collectors;
 
+/**
+ * @author team 14
+ */
 public class KMeansClassifier {
     private static final int CLUSTERSIZE = 500;
     private PatchImageFeature imgFeature;
@@ -32,15 +35,15 @@ public class KMeansClassifier {
     private List<String> finalR;
     private Data dataF;
 
-    /*
-    	String CURRENT_WORKING_DIRECTORY = System.getProperty("user.dir");
-    	final String TRAINING_PATH		 = CURRENT_WORKING_DIRECTORY+"/training";
-    	final String TESTING_PATH  		 = CURRENT_WORKING_DIRECTORY+"/testing";
-    */
     final GroupedDataset<String, VFSListDataset<FImage>, FImage>trainingDataset;
     final VFSListDataset<FImage> testDataset;
-  
 
+
+    /**
+     * Constructor
+     * @param data training data, testing data, destination file
+     * @throws IOException
+     */
     public KMeansClassifier(Data data) throws IOException {
         imgFeature = new PatchImageFeature();
 
@@ -52,8 +55,9 @@ public class KMeansClassifier {
     }
 
     /**
-     *
-     * @param dataset
+     *  Extract a set of features
+     *  Annotate each feature
+     * @param dataset the dataset used to extract a set of features
      */
     public void train(GroupedDataset<String, VFSListDataset<FImage>, FImage> dataset){
         HardAssigner<float[], float[], IntFloatPair> assigner = trainQuantiser(dataset, imgFeature);
@@ -67,12 +71,24 @@ public class KMeansClassifier {
         linearAnnotator.train(dataset);
     }
 
+
+    /**
+     * Classify an image
+     * @param img image to be classified
+     * @return the classification result
+     */
     public Optional predict(FImage img){
         return linearAnnotator.classify(img)
                 .getPredictedClasses().stream().findFirst();
     }
 
 
+    /**
+     * Train the classifier with training data
+     * Classify each image from the testing data
+     *
+     * @return the list of predictions
+     */
     public List<String> run() throws IOException {
     	finalR = new ArrayList<>();
         System.out.println("[*] Starting run2.....");
@@ -84,9 +100,6 @@ public class KMeansClassifier {
                 .collect(Collectors.toList());
         System.out.println("[*] Predictions complete.....");
 
-       // File file = dataF.RUN2_RESULT;
-       // FileWriter fr = new FileWriter(file, true);
-       // BufferedWriter br = new BufferedWriter(fr);
 
         for(int i = 0; i < testDataset.size(); i++){
             String fullPath = testDataset.getID(i);
@@ -95,19 +108,20 @@ public class KMeansClassifier {
 
             if(label.isPresent()){
             	finalR.add(fileName + " " + label.get());
-               // br.write(fileName + " " + label.get());
-               // br.newLine();
             }
 
         }
 
-       // br.close();
-       // fr.close();
-       // System.out.println("[*] Results written to file.....");
-        
         return finalR;
     }
 
+
+    /**
+     * Perfoms K-Means clustering on SIFT features sample
+     * @param dataSet dataset of images
+     * @param patchImg
+     * @return
+     */
     private static HardAssigner<float[], float[], IntFloatPair> trainQuantiser(
             GroupedDataset<String, ? extends ListDataset<FImage>, FImage> dataSet,
             PatchImageFeature patchImg)
@@ -135,15 +149,6 @@ public class KMeansClassifier {
         System.out.println("Clustering");
         FloatCentroidsResult res = km.cluster(dataSource);
         return res.defaultHardAssigner();
-    }
-
-
-
-
-
-    public static void main(String[] args) throws IOException {
-       // KMeansClassifier kmeans = new KMeansClassifier();
-       // kmeans.run();
     }
 
 }

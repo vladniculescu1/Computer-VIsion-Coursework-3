@@ -30,6 +30,13 @@ public class Data {
 	private GroupedDataset<String, VFSListDataset<FImage>, FImage> trainingDataset     = null;
 	private VFSListDataset<FImage>                                 testDataset         = null;
 
+	/**
+	 * Constructor
+	 * @param training the path to the training dataset
+	 * @param testing the path to the testing dataset
+	 * @throws FileSystemException
+	 * @throws IOException
+	 */
 	public Data(String training, String testing) throws FileSystemException, IOException {
 		TRAINING_DATA = new File(training);
 		TESTING_DATA  = new File(testing);
@@ -37,32 +44,44 @@ public class Data {
 		initData();
 	}
 
+	/**
+	 *
+	 * @return the dataset fetched from its location
+	 */
 	public GroupedDataset<String, VFSListDataset<FImage>, FImage> getTrainingDataset() {
 		return trainingDataset;
 	}
 
+	/**
+	 *
+	 * @return the dataset fetched from its location
+	 */
 	public VFSListDataset<FImage> getTestingDataset(){
 		return testDataset;
 	}
 
+	/**
+	 *
+	 * @return the path to the outputted file
+	 */
 	public File getRun1File() {
 		return RUN1_RESULT;
 	}
 
+	/**
+	 *
+	 * @return  the path to the outputted file
+	 */
 	public File getRun2File() {
 		return RUN2_RESULT;
 	}
 
+	/**
+	 *
+	 * @return  the path to the outputted file
+	 */
 	public File getRun3File() {
 		return RUN3_RESULT;
-	}
-
-	public File getTestingFile() {
-		return TESTING_DATA;
-	}
-
-	public File getTrainingFile() {
-		return TRAINING_DATA;
 	}
 
 	/**
@@ -84,42 +103,5 @@ public class Data {
 		trainingDataset = loadTrainData;
 		testDataset = new VFSListDataset<FImage>(TESTING_DATA.getPath(), ImageUtilities.FIMAGE_READER);
 	}
-	
-	
-	/**
-	 * Splits the Dataset into training and validation
-	 * 
-	 * @param trainingData
-	 * @return
-	 */
-	public GroupedDataset<String, ListDataset<FImage>, FImage>  splitTrainingAndValidationData(GroupedDataset<String, VFSListDataset<FImage>, FImage> trainingData){
-		GroupedDataset<String, ListDataset<FImage>, FImage> trainingDataGeneric = GroupSampler.sample(trainingData, trainingData.size(), false);
-		int trainingDataSize = trainingDataGeneric.size();
-		
-		final int percent80 = (int) Math.round(trainingDataSize * 0.8);
-		final int percent20 = (int) Math.round(trainingDataSize * 0.2);
-		GroupedRandomSplitter<String, FImage> trainingSplitter = new GroupedRandomSplitter<String, FImage>(trainingData, percent80, percent20, 0);
-		
-		GroupedDataset<String, ListDataset<FImage>, FImage> trainingDataset = trainingSplitter.getTrainingDataset();
-		GroupedDataset<String, ListDataset<FImage>, FImage> validationData = trainingSplitter.getValidationDataset();
-		
-		//Rotated copies of every image are added to set in order to test the classifier invariance to rotation
-		ListDataset<FImage> newImages = new ListBackedDataset<>();
-		
-		for (final String key : trainingDataset.keySet()){
-			newImages.clear();
-			for (final FImage image : trainingDataset.getInstances(key)){
-				newImages.add(image);
-				newImages.add(AffineSimulation.transformImage(image, 0.01f, 1));
-				newImages.add(AffineSimulation.transformImage(image, -0.01f, 1));
-				newImages.add(AffineSimulation.transformImage(image, 0.02f, 1));
-				newImages.add(AffineSimulation.transformImage(image, -0.02f, 1));
-			}
-			
-			trainingDataset.put(key, newImages);
-		}
-		
-		return trainingDataset;
-		
-	}
+
 }

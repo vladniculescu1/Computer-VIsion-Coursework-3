@@ -14,16 +14,29 @@ import org.openimaj.image.feature.local.aggregate.BlockSpatialAggregator;
 
 import java.util.List;
 
+/**
+ * @author team 14
+ */
 final class LibLinearExtractor implements FeatureExtractor<SparseIntFV, FImage> {
     private PatchImageFeature patchImg;
     private HardAssigner<float[], float[], IntFloatPair> assigner;
 
+    /**
+     * Constructor
+     * @param assigner
+     * @param patchImg the feature extractor
+     */
     public LibLinearExtractor(HardAssigner<float[],float[], IntFloatPair> assigner, PatchImageFeature patchImg){
         this.patchImg = patchImg ;
         this.assigner = assigner ;
     }
 
 
+    /**
+     * Map the spatial representation of the feature vector extracted
+     * @param img the image to be analysed
+     * @return spatial representation
+     */
     @Override
     public SparseIntFV extractFeature(FImage img) {
         BagOfVisualWords<float[]> bovw = new BagOfVisualWords<>(this.assigner);
